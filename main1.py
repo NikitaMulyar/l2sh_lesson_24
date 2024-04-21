@@ -2,10 +2,7 @@ from multiprocessing import Process, Queue
 from datetime import datetime
 
 
-q = Queue()
-
-
-def count_primes(n, st, end):
+def count_primes(n, st, end, q):
     def is_prime(num):
         for i in range(2, int(num ** 0.5 + 1)):
             if num % i == 0:
@@ -19,12 +16,13 @@ def count_primes(n, st, end):
             cnt += 1
     end_ = datetime.now()
     print(f'Process {n} is finished. Spent {(end_ - start_).total_seconds()} sec')
-    q.put(cnt)
+    q.put((n, cnt))
 
 
 def main():
-    p1 = Process(target=count_primes, args=(1, 2, 1000001), daemon=True)
-    p2 = Process(target=count_primes, args=(2, 1000001, 2000001), daemon=True)
+    q = Queue()
+    p1 = Process(target=count_primes, args=(1, 2, 1000001, q), daemon=True)
+    p2 = Process(target=count_primes, args=(2, 1000001, 2000001, q), daemon=True)
     p1.start()
     p2.start()
     p1.join()
@@ -50,5 +48,5 @@ def sync():
 
 
 if __name__ == '__main__':
-    sync()
+    #sync()
     main()
